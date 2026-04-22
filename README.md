@@ -4,10 +4,8 @@ This repository contains an ESP32-based bioimpedance measurement device and a Sw
 
 The project is split into two active parts:
 
-- `arduino/Medical_Devices.ino`: ESP32 firmware that generates the excitation signal, samples the response, computes calibrated peak-to-peak voltage, and exposes measurements over BLE.
-- `Medical devices/ContentView.swift`: SwiftUI app that connects to the ESP32, walks the user through a multi-step screening flow, records repeated captures, and produces a simple clinical screening summary.
-
-The repo also includes `main.ino`, which appears to be an earlier standalone signal-generation prototype kept for reference.
+- `arduino/firmware/Medical_Devices.ino`: ESP32 firmware that generates the excitation signal, samples the response, computes calibrated peak-to-peak voltage, and exposes measurements over BLE.
+- `ios-app/Medical devices/ContentView.swift`: SwiftUI app that connects to the ESP32, walks the user through a multi-step screening flow, records repeated captures, and produces a simple clinical screening summary.
 
 ## Project Goal
 
@@ -29,17 +27,18 @@ At a high level:
 .
 ├── README.md
 ├── arduino/
-│   └── Medical_Devices.ino
-├── main.ino
-├── Medical devices/
-│   ├── Assets.xcassets/
-│   └── ContentView.swift
-└── Medical devices.xcodeproj/
+│   └── firmware/
+│       └── Medical_Devices.ino
+└── ios-app/
+    ├── Medical devices/
+    │   ├── Assets.xcassets/
+    │   └── ContentView.swift
+    └── Medical devices.xcodeproj/
 ```
 
 ## Firmware Overview
 
-The active firmware lives in `arduino/Medical_Devices.ino`.
+The active firmware lives in `arduino/firmware/Medical_Devices.ino`.
 
 ### Hardware-facing behavior
 
@@ -99,7 +98,7 @@ The firmware also prints debug information to serial during capture, including r
 
 ## iOS App Overview
 
-The iOS app is implemented directly in `Medical devices/ContentView.swift`. The same file currently contains:
+The iOS app is implemented directly in `ios-app/Medical devices/ContentView.swift`. The same file currently contains:
 
 - the app entry point
 - the full SwiftUI interface
@@ -175,7 +174,7 @@ This is framed as a screening aid, not a diagnostic system.
 
 The intended end-to-end workflow is:
 
-1. Flash `arduino/Medical_Devices.ino` to the ESP32.
+1. Flash `arduino/firmware/Medical_Devices.ino` to the ESP32.
 2. Power the measurement hardware and verify the ESP32 is advertising as `MedicalDevices`.
 3. Open the iOS app from the Xcode project.
 4. Tap `Connect` in the app.
@@ -190,7 +189,7 @@ The intended end-to-end workflow is:
 
 ### Arduino / ESP32
 
-Open `arduino/Medical_Devices.ino` in the Arduino IDE and make sure your ESP32 board support package and BLE dependencies are installed.
+Open `arduino/firmware/Medical_Devices.ino` in the Arduino IDE and make sure your ESP32 board support package and BLE dependencies are installed.
 
 Expected capabilities used by the firmware include:
 
@@ -203,7 +202,7 @@ After flashing, open Serial Monitor at `115200` baud to inspect capture/debug ou
 
 ### iOS / Xcode
 
-Open `Medical devices.xcodeproj` in Xcode and run the app on an iPhone with Bluetooth support.
+Open `ios-app/Medical devices.xcodeproj` in Xcode and run the app on an iPhone with Bluetooth support.
 
 The project includes Bluetooth usage descriptions in the generated Info.plist settings, so iOS should prompt for Bluetooth permission when needed.
 
@@ -213,7 +212,3 @@ The project includes Bluetooth usage descriptions in the generated Info.plist se
 - The BLE protocol is intentionally simple and human-readable, which is convenient for debugging but not optimized for versioning or schema evolution.
 - The firmware uses a hard-coded calibration scale. If the analog front end changes, that factor should be revalidated.
 - The screening summary is based on simple threshold logic and should not be treated as a diagnostic conclusion.
-
-## Legacy File
-
-`main.ino` appears to be an older prototype that continuously outputs a sine wave, toggles a reference pin, and prints averaged ADC readings over serial. It does not implement the BLE measurement workflow used by the current app and firmware pair.
